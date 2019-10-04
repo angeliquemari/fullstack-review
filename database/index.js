@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher');
+mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
 
 let repoSchema = mongoose.Schema({
   id: Number,
@@ -22,7 +22,7 @@ let repoSchema = mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (repos) => {
+let save = (repos, callback) => {
   for (let i = 0; i < repos.length; i++) {
     var repo = repos[i];
     var repoData = {
@@ -43,10 +43,11 @@ let save = (repos) => {
         forks_count: repo.forks_count
       }
     };
-    Repo.updateOne({id: repo.id}, repoData, {upsert: true}, (err, writeOpResult) => {
-      console.log(`repo '${repo.name}' saved to db`, writeOpResult);
+    Repo.updateOne({id: repo.id}, repoData, {upsert: true}, (error, writeResult) => {
+      if (error) return callback(error);
+      callback(null, writeResult);
     });
   }
-} // next: respond to client
+}
 
 module.exports.save = save;
