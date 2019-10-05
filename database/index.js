@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
+mongoose.Promise = require('bluebird');
 
 let repoSchema = mongoose.Schema({
   id: Number,
@@ -50,4 +51,16 @@ let save = (repos, callback) => {
   }
 }
 
+let getTop25Repos = (callback) => {
+  Repo.
+    find()
+    .sort('-updated_at')
+    .limit(25)
+    .exec()
+    .then((docs) => {
+      callback(docs);
+    });
+}
+
 module.exports.save = save;
+module.exports.getTop25Repos = getTop25Repos;

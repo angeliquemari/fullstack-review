@@ -10,7 +10,23 @@ class App extends React.Component {
     this.state = { 
       repos: []
     }
+  }
 
+  getTopRepos() {
+    $.get('/repos', null, (topRepos) => {
+      var newRepos = topRepos.map((repo) => {
+        return {
+          id: repo.id,
+          name: repo.name,
+          owner_login: repo.owner.login,
+          description: repo.description,
+          html_url: repo.html_url,
+          created_at: repo.created_at,
+          updated_at: repo.updated_at
+        };
+      });
+      this.setState({repos: newRepos});
+    }, 'json');
   }
 
   search (term) {
@@ -21,7 +37,7 @@ class App extends React.Component {
       contentType: 'application/json',
       success: () => {
         console.log('Post req to /repos successful');
-        // make get request to /repos
+        // this.getTopRepos()
       }
     });
   }
@@ -32,6 +48,10 @@ class App extends React.Component {
       <RepoList repos={this.state.repos}/>
       <Search onSearch={this.search.bind(this)}/>
     </div>)
+  }
+
+  componentDidMount() {
+    this.getTopRepos();
   }
 }
 
