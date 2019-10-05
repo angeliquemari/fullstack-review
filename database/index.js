@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
 mongoose.Promise = require('bluebird');
+const Promise = require('bluebird');
 
 let repoSchema = mongoose.Schema({
   id: Number,
@@ -24,8 +25,7 @@ let repoSchema = mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let save = (repos, callback) => {
-  for (let i = 0; i < repos.length; i++) {
-    var repo = repos[i];
+  Promise.map(repos, (repo) => {
     var repoData = {
       id: repo.id,
       name: repo.name,
@@ -44,14 +44,17 @@ let save = (repos, callback) => {
         forks_count: repo.forks_count
       }
     };
-    Repo.updateOne({id: repo.id}, repoData, {upsert: true}, (error, writeResult) => {
-      if (error) return callback(error);
-      callback(null, writeResult);
-    });
-  }
+    return Repo.updateOne({id: repo.id}, repoData, {upsert: true});
+  })
+  .then((writeResult) => {
+    callback(null, writeResult);
+  })
+  .catch((error) => {
+    callback(error);
+  });
 }
 
-let getTop25Repos = (callback) => {
+let getTopRepos = (callback) => {
   Repo.
     find()
     .sort('-updated_at')
@@ -63,4 +66,4 @@ let getTop25Repos = (callback) => {
 }
 
 module.exports.save = save;
-module.exports.getTop25Repos = getTop25Repos;
+module.exports.getTopRepos = getTopRepos;

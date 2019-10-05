@@ -10,14 +10,15 @@ app.post('/repos', function (req, res) {
   githubHelper.getReposByUsername(req.body.username, (error, data) => {
     if (error) return console.log('Error getting repos: ', error);
     db.save(data, (error, writeResult) => {
-      if (error) return console.log('Error saving repos to db: ', error);
+      if (error) console.log('Error writing repos data to db:', error);
+      // if (writeResult) console.log('Write repos data to db response: ', writeResult);
       res.end();
     });
   });
 });
 
 app.get('/repos', function (req, res) {
-  db.getTop25Repos((docs) => {
+  db.getTopRepos((docs) => {
     res.send(JSON.stringify(docs));
   });
 });
@@ -27,4 +28,3 @@ let port = 1128;
 app.listen(port, function() {
   console.log(`listening on port ${port}`);
 });
-

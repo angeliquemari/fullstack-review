@@ -29,20 +29,18 @@ class App extends React.Component {
     }, 'json');
   }
 
-  search (term) {
-    console.log(`${term} was searched`);
+  search(term) {
     $.post({
       url: '/repos',
       data: JSON.stringify({username: term}),
       contentType: 'application/json',
       success: () => {
-        console.log('Post req to /repos successful');
-        // this.getTopRepos()
+        this.getTopRepos()
       }
     });
   }
 
-  render () {
+  render() {
     return (<div>
       <h1>Github Fetcher</h1>
       <RepoList repos={this.state.repos}/>
